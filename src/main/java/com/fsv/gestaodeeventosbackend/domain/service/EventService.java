@@ -23,6 +23,12 @@ public class EventService {
         return eventRepositoty.save(event);
     }
 
+    public void delete(Long eventId) {
+        Event event = findOrFail(eventId);
+        event.setSoftDelete(true);
+        eventRepositoty.save(event);
+    }
+
     public Event findOrFail(Long eventId) {
         return eventRepositoty.findById(eventId)
                 .orElseThrow(() -> new RuntimeException(eventId.toString()));

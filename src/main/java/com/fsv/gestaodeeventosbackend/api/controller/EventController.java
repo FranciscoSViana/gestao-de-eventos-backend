@@ -11,6 +11,7 @@ import com.fsv.gestaodeeventosbackend.api.model.input.EventInput;
 import com.fsv.gestaodeeventosbackend.domain.Event;
 import com.fsv.gestaodeeventosbackend.domain.service.EventService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class EventController {
     }
 
     @PostMapping
-    public EventModel saveEvent(@RequestBody EventInput eventInput) {
+    public EventModel saveEvent(@RequestBody @Valid EventInput eventInput) {
         try {
 
             Event event = eventInputDisassembler.toDomainObject(eventInput);
@@ -69,7 +70,7 @@ public class EventController {
     }
 
     @PutMapping("/{eventId}")
-    public EventModel update(@PathVariable Long eventId,  @RequestBody EventInput eventInput) {
+    public EventModel update(@PathVariable Long eventId,  @RequestBody @Valid EventInput eventInput) {
         Event event = eventService.findOrFail(eventId);
 
         eventInputDisassembler.copyToDomainObject(eventInput, event);
@@ -88,6 +89,13 @@ public class EventController {
         merge(fields, event, servletRequest);
 
         return update(eventId, eventInputDisassembler.toInputObject(event));
+    }
+
+    @PutMapping("/{eventId}/delete")
+    public ResponseEntity<Void> delete(@PathVariable Long eventId) {
+        eventService.delete(eventId);
+
+        return ResponseEntity.noContent().build();
     }
 
 //    private void validate(Event event, String objectName) {

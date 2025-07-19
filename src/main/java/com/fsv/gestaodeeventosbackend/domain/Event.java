@@ -30,4 +30,6 @@ public class Event {
 
     @Size(max = 200, message = "O local deve ter no máximo 200 caracteres.")
     private String eventLocal;
+
+    private Boolean softDelete = false;
 }
