@@ -1,13 +1,17 @@
 package com.fsv.gestaodeeventosbackend;
 
 import com.fsv.gestaodeeventosbackend.domain.Event;
-import com.fsv.gestaodeeventosbackend.domain.repository.EventRepositoty;
+import com.fsv.gestaodeeventosbackend.domain.repository.EventRepository;
 import com.fsv.gestaodeeventosbackend.domain.service.EventService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -17,13 +21,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
 
     @Mock
-    private EventRepositoty eventRepositoty;
+    private EventRepository eventRepository;
 
     @InjectMocks
     private EventService eventService;
@@ -33,7 +37,7 @@ public class EventServiceTest {
         Event event = new Event();
         event.setEventTime(OffsetDateTime.now(ZoneOffset.of("-03:00")));
 
-        when(eventRepositoty.save(any(Event.class))).thenAnswer(i -> i.getArgument(0));
+        when(eventRepository.save(any(Event.class))).thenAnswer(i -> i.getArgument(0));
 
         Event saved = eventService.saveEvent(event);
 
@@ -42,19 +46,26 @@ public class EventServiceTest {
 
     @Test
     void deveBuscarTodosEventos() {
-        List<Event> eventos = List.of(new Event(), new Event());
+        List<Event> events = List.of(new Event(), new Event());
+        Page<Event> pageEvents = new PageImpl<>(events);
 
-        when(eventRepositoty.findAll()).thenReturn(eventos);
+        EventRepository eventRepository = mock(EventRepository.class);
+        EventService eventService = new EventService(eventRepository);
 
-        List<Event> result = eventService.getAllEvents();
+        when(eventRepository.findAll(Mockito.any(Pageable.class))).thenReturn(pageEvents);
 
-        assertEquals(2, result.size());
+        Pageable pageable = Pageable.unpaged();
+
+        Page<Event> result = eventService.getAllEvents(pageable);
+
+        assertEquals(2, result.getContent().size());
+        verify(eventRepository, times(1)).findAll(pageable);
     }
 
     @Test
     void deveLancarExcecaoQuandoIdNaoEncontrado() {
         Long idInexistente = 999L;
-        when(eventRepositoty.findById(idInexistente)).thenReturn(Optional.empty());
+        when(eventRepository.findById(idInexistente)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> eventService.findOrFail(idInexistente));
     }

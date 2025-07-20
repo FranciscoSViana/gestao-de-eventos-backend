@@ -1,7 +1,7 @@
 package com.fsv.gestaodeeventosbackend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fsv.gestaodeeventosbackend.domain.repository.EventRepositoty;
+import com.fsv.gestaodeeventosbackend.domain.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ class EventControllerIT {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private EventRepositoty eventRepository;
+    private EventRepository eventRepository;
 
     @Test
     void deveCriarEventoEListarComSucesso() throws Exception {
@@ -56,7 +56,7 @@ class EventControllerIT {
         // GET /api/events
         mockMvc.perform(get("/api/events"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].title").value("Evento Teste"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Evento Teste"));
     }
 }
