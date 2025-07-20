@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -45,9 +48,9 @@ public class EventController {
     private final EventInputDisassembler eventInputDisassembler;
 
     @GetMapping
-    public List<EventModel> getAll() {
+    public Page<EventModel> getAll(@PageableDefault(size = 10)Pageable pageable) {
 
-        return eventModelAssembler.toCollectionModel(eventService.getAllEvents());
+        return eventService.getAllEvents(pageable).map(eventModelAssembler::toModel);
     }
 
     @GetMapping("/{eventId}")

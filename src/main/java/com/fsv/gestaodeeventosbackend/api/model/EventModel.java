@@ -12,6 +12,8 @@ import java.time.OffsetDateTime;
 @Setter
 public class EventModel {
 
+    private Long id;
+
     @Size(max = 100, message = "O titulo deve ter no máximo 100 caracteres.")
     private String title;
 
